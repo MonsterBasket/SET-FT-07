@@ -2,6 +2,18 @@
 
 <head>
     <title>My Awesome Todo app</title>
+    <style>
+        li input{
+            border: 1px solid rgba(0, 0, 0, 0);
+            transition: border 0.5s;
+            z-index: 0;
+        }
+        li:hover input, li input:hover{
+            border: 1px solid rgba(0, 0, 0, 1);
+            transition: border 0.5s;
+            z-index: 1;
+        }
+    </style>
 </head>
 
 <!-- <li>Sample Task 1</li> -->
@@ -15,7 +27,7 @@
 
     <div>
         <label for="#task-name">Task Name</label>
-        <input id="task-name" type="text">
+        <input id="task-name" type="text" onkeypress="onEnter(event)">
         <button onclick="getItem()">Add task</button>
     </div>
 </body>
