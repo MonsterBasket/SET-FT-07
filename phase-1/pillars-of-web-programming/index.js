@@ -1,4 +1,8 @@
 let items = [];
+let updateTimer;
+let itemToUpdate;
+let data = function(){return false};
+
 document.getElementsByTagName("body")[0].innerHTML += '<button onclick="clearItems()" style="margin-Top: 10px;">Clear Items?</button>';
 document.getElementsByTagName("body")[0].innerHTML += '<button onclick="sortItems()" style="margin-Top: 10px; margin-left: 5px;">Sort</button>';
 
@@ -9,7 +13,8 @@ function sendData(task, action, id){
             "Content-Type": "application/json",
             "Accept": "application/json"
         },
-        body: JSON.stringify(task)};
+        body: JSON.stringify(task),
+        keepalive: true};
     if (action === "new"){ //new task
         items.push(task);
         config.method = "POST";
@@ -22,7 +27,7 @@ function sendData(task, action, id){
         }
         else{
         config.method = "DELETE";
-        config.body = JSON.stringify({task});
+        //config.body = JSON.stringify({task});
         }
     }
     console.log(fetchUrl, config)
@@ -110,7 +115,15 @@ function deleteSingle(event){ //triggered with double click on any li
 function updatePrio(event){
     const priorityItem = items.find(item => parseInt(event.target.id.substring(1)) === item.id); //the id of the number boxes match the id of the parent li and matching items array element, with "p" in front, this trims the "p" to find the matching items element
     priorityItem.priority = event.target.value; //sets array item priority to the value of the matching number box
-    sendData({priority:event.target.value}, "update", priorityItem.id)
+    let newData = function(){sendData({priority:event.target.value}, "update", priorityItem.id); return true;};
+    clearTimeout(updateTimer);
+    if (itemToUpdate !== event.target && data){
+        data();
+        data = function(){return false};
+    }
+    updateTimer = setTimeout(a => newData(), 2000);
+    itemToUpdate = event.target;
+    data = newData;
 }
 
 function clearItems(){
@@ -143,3 +156,8 @@ function sortItems(){
 document.addEventListener('DOMContentLoaded', function() {
     loadList();
     });
+
+window.addEventListener('beforeunload', () => {
+    clearTimeout(updateTimer);
+    if (data) data();
+})
